@@ -1,0 +1,89 @@
+pgadmin4:
+  servicePort: &servicePort 5050
+  enabled: true
+  image:
+    registry: harbor.apps.dso.numerique-interieur.com/dockerhub
+    repository: bnoleau/pgadmin-rootless
+    tag: "8.12"
+  fullnameOverride: pgadmin
+  env:
+    email:  pgadmin@domain.com
+  envVarsExtra:
+    - name: PGADMIN_DISABLE_POSTFIX
+      value: "1"
+    - name: PGADMIN_LISTEN_PORT
+      value: "5050"
+  securityContext: ""
+  containerSecurityContext:
+    enabled: false
+  # disabled initContainer
+  VolumePermissions:
+    enabled: false
+  persistentVolume:
+    size: 100Mi
+  containerPorts:
+    http: *servicePort
+  service:
+    type: ClusterIP
+    port: *servicePort
+    targetPort: *servicePort
+  ingress:
+    enabled: true
+    hosts:
+      - host: pgadmin-cnpgexample.apps.app1.numerique-interieur.com
+        paths:
+          - path: /
+            pathType: Prefix
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "250m"
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+  existingSecret: pgadmin4-password
+  serverDefinitions:
+    enabled: true
+    servers:
+      firstServer:
+        Name: "Ma bdd"
+        Group: "Servers"
+        Port: 5432
+        Username: "app"
+        Host: "db-rw"
+        SSLMode: "prefer"
+        MaintenanceDB: "postgres"
+
+db:
+  backup:
+    enabled: false
+    # schedule: "0 0 * * * *"
+    # retentionPolicy: 30d
+    # endpointURL: "http://minio:9000"
+    # destinationPath: "s3://database"
+    # s3CredentialsSecret: s3-creds
+
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 500m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+dataloader:
+  enabled: false
+  bucket: backup
+  endpoint: http://minio:9000
+  file: backup.sql
+  image:
+    registry: harbor.apps.dso.numerique-interieur.com
+    repository: achanger
+    tag: "1.0"
+  db:
+    host: db-rw
+    user: postgres
+    name: app
+    passwordSecret: db-super-user
+  s3:
+    secret: s3-creds
