@@ -17,3 +17,24 @@ Pour plus de de documentation [https://cloudnative-pg.io/documentation/1.24/boot
 Ce chart comprend un script dataloader, permettant de récupérer un fichier sql depuis un S3 et de le restaurer dans la base voulue.
 
 Attention, cela demande de construire l'image docker associée, voir les fichiers [ici](exemples/dataloader/)
+
+### Rétention des WAL
+
+Il est possible de paramétrer 2 volumes différents pour le stockage des données et celui des WAL:
+
+```yaml
+  storage:
+    size: 8Gi
+  walStorage:
+    size: 5Gi
+```
+
+De plus il est bon de spécifier à postgresql la taille maximum du stockage des WAL (par défaut à -1 pour illimité):
+
+```yaml
+  postgres:
+    parameters:
+      max_slot_wal_keep_size: 5GB
+```
+
+Attention aux unités pour postgresql: B, kB, MB, GB, TB.
