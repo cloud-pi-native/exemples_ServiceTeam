@@ -4,6 +4,10 @@ Ce dépôt contient plusieurs exemples de chart helm utilisable sur la plateform
 
 Résumé des exemples:
 
+## Database
+
+- [cnpg](database/cnpg/): Chart Helm provisionnant une base de données postgresql via l'opérateur CNPG (+ pgadmin)
+
 ## Monitoring
 
 - [prometheus_community_blackbox](monitoring/prometheus_community_blackbox/README.md): Chart Helm pour prometheus blackbox exporter (sonde d'URL).
