@@ -1,0 +1,112 @@
+environment: ovh  # FIXME
+keycloak:
+  enabled: true
+  replicaCount: 1
+  global:
+    compatibility:
+      openshift:
+        adaptSecurityContext: auto
+  
+  # FIXME: Use secret (with SOPS)
+  auth:
+    adminUser: admin
+    adminPassword: "admin"
+  
+  extraEnvVars:
+    # FIXME: Replace <placeholder> with value
+    - name: KEYCLOAK_URL
+      value: https://<sso-chart-example.apps.app1.numerique-interieur.com>
+  extraEnvVarsCM: ""
+  extraEnvVarsSecret: ""
+
+  # FIXME: Replace <placeholder> with value
+  ingress:
+      apiVersion: ''
+      enabled: true
+      hostname: <sso-chart-example.apps.app1.numerique-interieur.com>
+      ingressClassName: ''
+      path: /
+      pathType: Prefix
+      annotations: 
+      selfSigned: false
+      servicePort: http
+      tls: false
+  
+  cache:
+      enabled: false
+  containerPorts:
+      http: 8080
+      https: 8443
+      infinispan: 7800
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+  
+  logging:
+    level: INFO
+    output: default
+  podSecurityContext:
+    enabled: false
+    fsGroup: null
+  
+  # FIXME: Replace <placeholder> with value
+  externalDatabase:
+    existingSecret: "<db-secret-name>"
+    existingSecretHostKey: "host"
+    existingSecretPortKey: "port"
+    existingSecretUserKey: "username"
+    existingSecretDatabaseKey: "dbname"
+    existingSecretPasswordKey: "password"
+  postgresql:
+    enabled: false  
+  
+  production: false
+  proxy: none  # FIXME: edge ?
+  keycloakConfigCli:
+    enabled: true
+    existingConfigmap: "keycloak-realm-config" 
+    # FIXME: Use configmap 
+    extraEnvVars:
+      - name: IMPORT_VARSUBSTITUTION_ENABLED
+        value: "true"
+      - name: REALM
+        value: krakend-realm
+      - name: CLIENTID
+        value: krakend-client
+    extraEnvVarsCM: ""
+    extraEnvVarsSecret: "keycloak-client-secret"
+    image:
+      registry: docker.io
+      repository: bitnami/keycloak-config-cli
+      tag: 5.11.1-debian-12-r0
+      digest: ""
+      pullPolicy: IfNotPresent
+    command:
+    - java
+    - -jar
+    - /opt/bitnami/keycloak-config-cli/keycloak-config-cli-23.0.7.jar
+    annotations:
+      helm.sh/hook: "post-install,post-upgrade,post-rollback"
+      helm.sh/hook-delete-policy: "hook-succeeded,before-hook-creation"
+      helm.sh/hook-weight: "5"
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 512Mi
+    cleanupAfterFinished:
+      enabled: false
+      seconds: 600
+    containerSecurityContext:
+      enabled: false
+    podSecurityContext:
+      enabled: false
+  
+  networkPolicy:
+    enabled: false
