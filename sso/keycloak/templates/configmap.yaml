@@ -5,7 +5,7 @@ metadata:
 data:
   # FIXME
   # publicClient: false ?
-  # roles/users ?
+  # roles/users: use secret ?
   realm-config.yaml: |
     realm: $(REALM)
     enabled: true
