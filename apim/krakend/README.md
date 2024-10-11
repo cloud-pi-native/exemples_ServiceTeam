@@ -1,4 +1,85 @@
-# Krakend
+# APIM
+
+## Cas d'usage
+
+Cette solution s'adresse au projets qui exposent une API et ont un besoin de sécuriser ces endpoints.
+
+Les projets qui souhaitent ajouter une couche de sécurité sur leur API sans avoir à gérer l'authentification et l'intégration avec le fournisseur d'identité dans leur code applicatif peuvent se tourner vers cette architecture.
+
+Afin de vérifier les informations d'authentification fournies dans les requêtes (via header ou cookie), la solution s'intègre avec un fournisseur d'identité. Celui-ci peut être apporté par le projet si il dispose déjà d'un IDP et d'une base d'utilisateurs. Dans le cas contraire, le projet peut s'appuyer sur l'exemple d'implémentation de [Keycloak](../../sso/keycloak/README.md) proposé par la Service Team.
+
+Les projets qui souhaitent utiliser cette solution ou l'adapter à leur cas d'usage sont invités à copier cet exemple et modifier le fichier `values.yaml` avec leur configuration (voir plus bas les valeurs typiques à modifier).
+
+## Solution avec Krakend
+
+La solution proposée déploie [Krakend](https://www.krakend.io/), une API Gateway qui permet donc d'exposer les endpoints d'une API et redirige les requêtes entrantes vers le back-end.
+
+Krakend s'intègre avec un IDP (comme Keycloak) et permet d'ajouter une validation d'authentification sur les endpoints exposés.
+
+En configurant Krakend, le projet peut définir pour chaque couple method & endpoint (ex : `GET /api/public`) les rôles autorisés à accéder à la ressource (ABAC/RBAC). L'utilisateur qui souhaite consommer une ressource de l'API doit donc s'authentifier auprès de l'IDP pour récupérer son access token et intégrer ce dernier au header authorization de sa requête. Krakend valide ensuite auprès de l'IDP que l'utilisateur associé au token fourni dispose bien d'un rôle autorisant l'accès à la ressource avant de transmettre la requête au back-end.
+
+Krakend permet également d'appliquer de nombreux paramètres sur les requêtes qui peuvent être utiles au projet selon ses besoins, comme la configuration de rate limit sur l'API, le cache de token ou la modification de header à la volée (se référer à la [documentation officielle](https://www.krakend.io/docs/)).
+
+## Exemple de configuration
+
+Dans l'exemple proposé dans ce dépôt, les projets peuvent retrouver l'implémentation de la validation d'authentification (testée avec Keycloak déployé comme dans l'exemple SSO).
+
+Les valeurs suivantes sont fournies à titre d'exemple ou sont des placeholders à modifier par le projet avant de déployer la solution (fichier values.yaml). Il s'agit de paramètres Krakend sous forme de templates json. En particulier, les routes à exposer sont à définir :
+
+| Key | Values |
+| --- | ------ |
+| `settings.urls.json` | `APIHost`: URL du service Kube vers le back-end avec le port </br> `JWKUrl`: URL du service Kube vers l'IDP (ex. Keycloak) avec le port et le path du protocole |
+| `templates.endpoints.tmpl` | `endpoint`: Path exposé par Krakend </br> `method`: Verbe concerné </br> `backend.url_pattern`: Path cible vers le back </br> `extra_config.auth/validator.Roles`: Liste des rôles de l'IDP autorisés pour l'endpoint |
+| `ingress.host` | URL externe pour exposer Krakend (et donc l'API Gateway) |
+
+L'exemple expose 2 endpoints, à savoir `/api/public` qui redirige vers une ressource `/swagger/json` du back-end sans authentification et `/api/private1` qui redirige vers une ressource `/api/resource1` du back-end avec validation d'autorisation (les rôles `admin`, `readwrite` & `readonly` peuvent effectuer un `GET` mais seuls les rôles `admin` & `readwrite` peuvent effectuer un `POST`) :
+
+```json
+{
+  "endpoint": "/api/public",
+  "method": "GET",
+  "backend": [
+    {
+      "host": ["{{ $host }}"],
+      "url_pattern": "/swagger/json"
+    }
+  ]
+},
+{
+  "endpoint": "/api/private1",
+  "method": "GET",
+  "backend": [
+    {
+      "host": ["{{ $host }}"],
+      "url_pattern": "/api/resource1"
+    }
+  ],
+  "input_headers": {{ include "input_header.txt"}},
+  "extra_config": {
+    "auth/validator": {{ template "auth_validator" (dict "JWKUrl" $JWKUrl "Roles" "[\"admin\", \"readwrite\", \"readonly\"]") }},
+    "auth/jwk-client": {{ template "auth_jwk_client" . }},
+    "modifier/lua-proxy": {{ template "lua_prescript" . }}
+  }
+},
+{
+  "endpoint": "/api/private1",
+  "method": "POST",
+  "backend": [
+    {
+      "host": ["{{ $host }}"],
+      "url_pattern": "/api/resource1"
+    }
+  ],
+  "input_headers": {{ include "input_header.txt"}},
+  "extra_config": {
+    "auth/validator": {{ template "auth_validator" (dict "JWKUrl" $JWKUrl "Roles" "[\"admin\", \"readwrite\"]") }},
+    "auth/jwk-client": {{ template "auth_jwk_client" . }},
+    "modifier/lua-proxy": {{ template "lua_prescript" . }}
+  }
+}
+```
+
+## Doc Krakend
 
 ![Version: 0.1.34](https://img.shields.io/badge/Version-0.1.34-informational?style=for-the-badge)
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=for-the-badge)
@@ -6,12 +87,12 @@
 
 This is a helm chart that deploys a [Krakend](https://www.krakend.io/) instance.
 
-## Description
+### Description
 
 A Helm chart for deploying krakend.io in Kubernetes provided
 and maintained by your friends at Equinix Metal
 
-## Installation
+### Installation
 
 * Add the Equinix Metal helm repository
 ```bash
@@ -31,7 +112,7 @@ helm install krakend equinixmetal/krakend
 >     repository: "https://helm.equinixmetal.com"
 > ```
 
-## Usage
+### Usage
 
 There are two main modes of operation:
 
@@ -50,7 +131,7 @@ image, this is done so that the configuration can take environment variables int
 Note that for a further description on how to use partials, settings and templates,
 please refer to [the official krakend documentation](https://www.krakend.io/docs/configuration/flexible-config/).
 
-## Values
+### Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
@@ -128,14 +209,14 @@ please refer to [the official krakend documentation](https://www.krakend.io/docs
 | tolerations | object | `[]` | The tolerations to use for the krakend pod |
 | topologySpreadConstraints | array | `[]` | The topologySpreadConstraints to use for the krakend pod |
 
-## Development
+### Development
 
-### Prerequisites
+#### Prerequisites
 
 - [helm](https://helm.sh/docs/intro/install/)
 - [helm-docs](https://github.com/norwoodj/helm-docs)
 
-### Testing
+#### Testing
 
 Ensure that the documentation is up to date before pushing a pull request:
 
@@ -143,7 +224,7 @@ Ensure that the documentation is up to date before pushing a pull request:
 helm-docs
 ```
 
-### Releasing
+#### Releasing
 
 There is a useful Makefile target that's useful to cut a release. So, simply do:
 

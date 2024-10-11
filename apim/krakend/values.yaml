@@ -56,8 +56,8 @@ krakend:
   # to use them.
   # FIXME: Example with following endpoints
     # GET /api/public available to anyone without auth validation (redirects to /swagger/json)
-    # GET /api/private available to admin, readwrite, readonly roles from IDP (keycloak) with auth validation (redirects to /swagger/json)
-    # POST /api/private available to admin & readwrite keycloak roles only with auth validation (redirects to /swagger/json)
+    # GET /api/private1 available to admin, readwrite, readonly roles from IDP (keycloak) with auth validation (redirects to /api/resource1)
+    # POST /api/private1 available to admin & readwrite keycloak roles only with auth validation (redirects to /api/resource1)
   templates:
     telemetry.tmpl: |-
       "extra_config": {
@@ -120,12 +120,12 @@ krakend:
         ]
       },
       {
-        "endpoint": "/api/private",
+        "endpoint": "/api/private1",
         "method": "GET",
         "backend": [
           {
             "host": ["{{ $host }}"],
-            "url_pattern": "/swagger/json"
+            "url_pattern": "/api/resource1"
           }
         ],
         "input_headers": {{ include "input_header.txt"}},
@@ -136,12 +136,12 @@ krakend:
         }
       },
       {
-        "endpoint": "/api/private",
+        "endpoint": "/api/private1",
         "method": "POST",
         "backend": [
           {
             "host": ["{{ $host }}"],
-            "url_pattern": "/swagger/json"
+            "url_pattern": "/api/resource1"
           }
         ],
         "input_headers": {{ include "input_header.txt"}},
