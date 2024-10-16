@@ -1,0 +1,11 @@
+{{ if .Values.db.backup.enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: db-backup
+spec:
+  schedule: ".Values.db.backup.schedule"
+  backupOwnerReference: self
+  cluster:
+    name: db
+{{ end }}
