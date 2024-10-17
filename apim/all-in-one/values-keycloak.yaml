@@ -1,0 +1,104 @@
+keycloak:
+  global:
+    compatibility:
+      openshift:
+        adaptSecurityContext: force
+  
+  auth:
+    adminUser: &keycloak_user admin
+    # FIXME: Change secret name & values
+    existingSecret: demo-keycloak-auth-secret
+    passwordSecretKey: KEYCLOAK_PASSWORD
+  
+  # extraEnvVars:
+  #   - name: KEYCLOAK_CLIENTID
+  #     value: master
+  #   - name: KEYCLOAK_USER
+  #     value: *keycloak_user
+  extraEnvVarsCM: ""
+  extraEnvVarsSecret: ""
+  # extraEnvVarsSecret: demo-keycloak-auth-secret
+  
+  keycloakConfigCli:
+    enabled: true
+    # FIXME: Change CM name & values
+    existingConfigmap: demo-keycloak-realm-cm
+    extraEnvVars:
+      - name: IMPORT_VARSUBSTITUTION_ENABLED
+        value: "true"
+    # FIXME: Change secret & CM name & values
+    extraEnvVarsCM: demo-keycloak-env-cm
+    extraEnvVarsSecret: demo-keycloak-env-secret
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 512Mi
+    containerSecurityContext:
+      enabled: false
+    podSecurityContext:
+      enabled: false
+
+  containerPorts:
+    http: 8080
+    https: 8443
+    infinispan: 7800
+  
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+  
+  externalDatabase:
+    existingSecretHostKey: "host"
+    existingSecretPortKey: "port"
+    existingSecretUserKey: "username"
+    existingSecretDatabaseKey: "dbname"
+    existingSecretPasswordKey: "password"
+  postgresql:
+    enabled: false
+  
+  production: false  # FIXME: true
+  proxy: edge  # FIXME: deprecated
+  # proxyHeaders: forwarded
+  
+  cache:
+      enabled: false
+
+  podSecurityContext:
+    enabled: false
+    runAsUser: null
+    runAsGroup: null
+    fsGroup: null
+  containerSecurityContext:
+    enabled: true
+    runAsUser: null
+    runAsGroup: null
+    fsGroup: null
+    runAsNonRoot: true
+    privileged: false
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+      add: ["NET_BIND_SERVICE"]
+  
+  networkPolicy:
+    enabled: false
+
+  ingress:
+      # enabled: true
+      # hostname: ""
+      # path: /
+      # pathType: Prefix
+      apiVersion: ''
+      ingressClassName: ''
+      annotations: {}
+      selfSigned: false
+      servicePort: http
+      # tls: false

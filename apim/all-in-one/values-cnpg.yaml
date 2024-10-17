@@ -1,0 +1,58 @@
+cluster:
+  enabled: true
+  
+  type: postgresql
+  mode: standalone
+
+  cluster:
+    instances: 1
+
+    imageName: ghcr.io/cloudnative-pg/postgresql:15
+    imagePullSecrets: 
+      - name: registry-pull-secret
+
+    storage:
+      size: 2Gi
+      storageClass: ""
+
+    walStorage:
+      enabled: true
+      size: 1Gi
+      storageClass: ""
+
+    resources: 
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+
+    monitoring:
+      enabled: true
+      podMonitor:
+        enabled: true
+      prometheusRule:
+        enabled: true
+        excludeRules: []
+
+    initdb: 
+      database: keycloak
+      owner: "keycloak" # Defaults to the database name
+      secret:
+        name: "" # Name of the secret containing the initial credentials for the owner of the user database. If empty a new secret will be created from scratch
+      options: []
+      encoding: UTF8
+
+  backups:
+    # -- You need to configure backups manually, so backups are disabled by default.
+    provider: s3
+    s3:
+      region: ""
+      bucket: ""
+      path: "/"
+      accessKey: ""
+      secretKey: ""
+    secret:
+      # -- Whether to create a secret for the backup credentials
+      create: false

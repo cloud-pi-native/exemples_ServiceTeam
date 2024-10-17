@@ -1,0 +1,54 @@
+# SOPS decrypted secrets
+*.dec.*
+*decrypt*
+
+# Helm
+*Chart.lock
+*charts/
+
+# Build dir
+*dist/
+
+# OS
+.DS_Store
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.tmproj
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Local vars
+*.env
+*.envrc
+
+# Archive files
+*.src.rock
+*.zip
+*.tar.gz
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Common backup files
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
