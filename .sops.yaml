@@ -1,0 +1,3 @@
+creation_rules:
+  - age: 'age1g867s7tcftkgkdraz3ezs8xk5c39x6l4thhekhp9s63qxz0m7cgs5kan9a'  # defaut cluster DSO OVH c4 & app1
+    encrypted_regex: '^(data|stringData)$'

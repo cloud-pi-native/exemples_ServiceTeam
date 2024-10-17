@@ -1,0 +1,60 @@
+env: &environment demo
+
+keycloak_realm: &realm demo-realm
+
+# Krakend (APIM)
+krakend:
+  enabled: true
+
+  labels:
+    env: *environment
+  
+  krakend:
+    env:
+      - name: KC_REALM
+        value: *realm
+        # FIXME: Name of the backend API kube svc
+      - name: BACKEND_SVC_NAME
+        value: "<release-name>"
+        # FIXME: Name of the Keycloak kube svc
+      - name: KEYCLOAK_SVC_NAME
+        value: "<release-name>-keycloak"
+
+  ingress:
+    enabled: true
+    hosts:
+      # FIXME: Krakend URL
+      - host: "<apim-domain-name>.apps.app1.numerique-interieur.com"
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+
+# Keycloak (IdP)
+keycloak:
+  enabled: true
+
+  extraEnvVars:
+    # FIXME: Keycloak URL
+    - name: KEYCLOAK_URL
+      value: https://<sso-domain-name>.apps.app1.numerique-interieur.com
+  externalDatabase:
+    # FIXME: Name of the CNPG generated secret
+    existingSecret: "<release-name>-cluster-app"
+
+  ingress:
+      enabled: true
+    # FIXME: Keycloak URL
+      hostname: "<sso-domain-name>.apps.app1.numerique-interieur.com"
+      path: /
+      pathType: Prefix
+      tls: false
+
+# CNPG (DB)
+cluster:
+  backups:
+    enabled: false
+    # destinationPath: "s3://<bucket><path>"
+    secret:
+      create: false
+      name: ""

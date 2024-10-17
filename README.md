@@ -21,3 +21,11 @@ Résumé des exemples:
 ## Misc
 
 - [pull_images_from_harbor](/misc/pull_images_from_harbor/README.md): Utilisation du secret registry-pull-secret et de la propriété imagePullSecrets sur un déploiement
+
+## SSO
+
+- [Keycloak](sso/keycloak/README.md): Déployer un fournisseur d'identité via Helm pour mettre à disposition un serice de [Single Sign-On](https://www.keycloak.org/getting-started/getting-started-openshift)
+
+## APIM
+
+- [Krakend](apim/krakend/README.md): Déployer une API Gateway afin de sécuriser les endpoints d'une API. Configurer l'authentification auprès d'un fournisseur d'identité et les règles d'accès aux différents endpoints (RBAC/ABAC) grâce à [Krakend](https://www.krakend.io/docs/overview/) 
