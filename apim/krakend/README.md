@@ -38,9 +38,6 @@ flowchart TB
     user_api -->|Appel API via Ingress| ingress
     user_api -->|Demande un token username+password| keycloak
     krakend -->|Valide les autorisations| keycloak
-
-    %% Déploiement des services via ArgoCD
-    argocd -->|Déploie les services| k8s_cluster
 ```
 
 La séquence typiques des flux lors d'une requête à l'API sécurisée via l'API Gateway est la suivante :
