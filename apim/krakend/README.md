@@ -20,6 +20,32 @@ Krakend permet également d'appliquer de nombreux paramètres sur les requêtes 
 L'architecture de référence complète proposée, incluant Krakend pour l'API Gateway, Keycloak pour la gestion des identités avec sa base de données CNPG et l'API du projet à sécuriser se présente comme suit :
 
 ```mermaid
+flowchart TB
+    subgraph k8s_cluster[Kubernetes Cluster]
+        direction TB
+        ingress[HA proxy Ingress Controller]
+        krakend[Krakend - API Gateway]
+        node_api[API Node - Node.js]
+        keycloak[Keycloak - Gestion des utilisateurs]
+        postgres[(Postgres CNPG)] 
+        ingress -->|Transmet la demande utilisateur| krakend
+        krakend -->|Transmet la demande| node_api 
+        node_api -->|Envoie la réponse| krakend
+        keycloak -->|Stocke les données| postgres
+    end
+
+    user_api[API externe]
+    user_api -->|Appel API via Ingress| ingress
+    user_api -->|Demande un token username+password| keycloak
+    krakend -->|Valide les autorisations| keycloak
+
+    %% Déploiement des services via ArgoCD
+    argocd -->|Déploie les services| k8s_cluster
+```
+
+La séquence typiques des flux lors d'une requête à l'API sécurisée via l'API Gateway est la suivante :
+
+```mermaid
 sequenceDiagram
     actor API-externe
     participant Keycloak
