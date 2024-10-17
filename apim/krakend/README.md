@@ -3,7 +3,6 @@
 ## Cas d'usage
 
 Cette solution s'adresse au projets qui exposent une API et ont un besoin de sécuriser ces endpoints.
-
 Les projets qui souhaitent ajouter une couche de sécurité sur leur API sans avoir à gérer l'authentification et l'intégration avec le fournisseur d'identité dans leur code applicatif peuvent se tourner vers cette architecture.
 
 Afin de vérifier les informations d'authentification fournies dans les requêtes (via header ou cookie), la solution s'intègre avec un fournisseur d'identité. Celui-ci peut être apporté par le projet si il dispose déjà d'un IDP et d'une base d'utilisateurs. Dans le cas contraire, le projet peut s'appuyer sur l'exemple d'implémentation de [Keycloak](../../sso/keycloak/README.md) proposé par la Service Team.
@@ -13,12 +12,29 @@ Les projets qui souhaitent utiliser cette solution ou l'adapter à leur cas d'us
 ## Solution avec Krakend
 
 La solution proposée déploie [Krakend](https://www.krakend.io/), une API Gateway qui permet donc d'exposer les endpoints d'une API et redirige les requêtes entrantes vers le back-end.
-
 Krakend s'intègre avec un IDP (comme Keycloak) et permet d'ajouter une validation d'authentification sur les endpoints exposés.
 
 En configurant Krakend, le projet peut définir pour chaque couple method & endpoint (ex : `GET /api/public`) les rôles autorisés à accéder à la ressource (ABAC/RBAC). L'utilisateur qui souhaite consommer une ressource de l'API doit donc s'authentifier auprès de l'IDP pour récupérer son access token et intégrer ce dernier au header authorization de sa requête. Krakend valide ensuite auprès de l'IDP que l'utilisateur associé au token fourni dispose bien d'un rôle autorisant l'accès à la ressource avant de transmettre la requête au back-end.
-
 Krakend permet également d'appliquer de nombreux paramètres sur les requêtes qui peuvent être utiles au projet selon ses besoins, comme la configuration de rate limit sur l'API, le cache de token ou la modification de header à la volée (se référer à la [documentation officielle](https://www.krakend.io/docs/)).
+
+L'architecture de référence complète proposée, incluant Krakend pour l'API Gateway, Keycloak pour la gestion des identités avec sa base de données CNPG et l'API du projet à sécuriser se présente comme suit :
+
+```mermaid
+sequenceDiagram
+    actor API-externe
+    participant Keycloak
+    participant Krakend
+    participant API as API Node
+
+    API-externe->>Keycloak: Demande un token (auth)
+    Keycloak-->>API-externe: Retourne un token JWT
+    API-externe->>Krakend: Requête avec le token JWT
+    Krakend->>Keycloak: Valide le token JWT
+    Keycloak-->>Krakend: Confirmation que le token est valide
+    Krakend->>API: Transmet la requête
+    API-->>Krakend: Réponse de l'API
+    Krakend-->>API-externe: Retourne la réponse de l'API
+```
 
 ## Exemple de configuration
 
@@ -79,7 +95,7 @@ L'exemple expose 2 endpoints, à savoir `/api/public` qui redirige vers une ress
 }
 ```
 
-## Doc Krakend
+## Documentation Krakend (Helm chart)
 
 ![Version: 0.1.34](https://img.shields.io/badge/Version-0.1.34-informational?style=for-the-badge)
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=for-the-badge)
