@@ -21,6 +21,7 @@ Résumé des exemples:
 ## Secrets
 
 - [SOPS](secrets/sops/README.md): Gestion des secrets dans un chart helm via [SOPS](https://github.com/isindir/sops-secrets-operator)
+- [Vault](secrets/vault/README.md): Gestion des secrets dans un chart helm via l'opérateur [VSO](https://developer.hashicorp.com/vault/docs/platform/k8s/vso)
 
 ## Misc
 
