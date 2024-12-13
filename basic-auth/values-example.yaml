@@ -1,0 +1,45 @@
+
+image:
+  repository: bitnami/nginx
+  pullPolicy: IfNotPresent
+  tag: "1.26.2"
+
+nameOverride: "nginx"
+
+service:
+  type: ClusterIP
+  port: 8080
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: 1
+    memory: 1024Mi
+
+vaultSecret:
+  enabled: true
+  mount: "mi-apy"
+  vaultPath: foo
+  destination:
+    name: super-secrets
+
+extraEnvVars:
+  - name: MON_PROJET
+    value: test
+  - name: MON_PROJET_ID
+    valueFrom:
+      secretKeyRef:
+        name: super-secrets
+        key: IDP
+
+basicAuth:
+  - user: admin
+    password: $5$s6Subz0X7FSX2zON$r94OtF6gOfWlGmySwvn3pDFIAHbIpe6mWneueqtBOm/
+  - user: bot
+    password: $5$Dn3OiIYhLtWKaIoo$RNpKxR/eDWwAdlUGAxAOxboyECKa0GbJD1ttDcOOzCC
+
+haproxy:
+  ingress:
+    hostname: "webappapy-dev.apps.app1.numerique-interieur.com"

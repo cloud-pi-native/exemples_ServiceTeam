@@ -34,3 +34,7 @@ Résumé des exemples:
 ## APIM
 
 - [Krakend](apim/krakend/README.md): Déployer une API Gateway afin de sécuriser les endpoints d'une API. Configurer l'authentification auprès d'un fournisseur d'identité et les règles d'accès aux différents endpoints (RBAC/ABAC) grâce à [Krakend](https://www.krakend.io/docs/overview/) 
+
+## Basic-auth
+
+- [Basic-auth](basic-auth/README.md): Déployer une web app avec une basic-auth afin de rajouter une authentification à une application qui n'en possède pas.
