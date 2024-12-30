@@ -3,8 +3,6 @@ kind: ConfigMap
 metadata:
   name: demo-keycloak-realm-cm
 data:
-  # FIXME
-  # publicClient: false
   realm-config.yaml: |
     realm: $(KC_REALM)
     enabled: true
@@ -17,10 +15,14 @@ data:
       protocol: openid-connect
       serviceAccountsEnabled: true
       surrogateAuthRequired: false
-      enabled: true
       alwaysDisplayInConsole: false
+      {{- if .Values.keycloak.clientSecretAuthTypeEnabled }}
       clientAuthenticatorType: client-secret
       secret: $(KC_REALM_CLIENTSECRET)
+      directAccessGrantsEnabled: true
+      {{- else }}
+      directAccessGrantsEnabled: false
+      {{- end }}
       redirectUris:
         - '*'
       webOrigins:
@@ -30,11 +32,8 @@ data:
       consentRequired: false
       standardFlowEnabled: true
       implicitFlowEnabled: false
-      directAccessGrantsEnabled: true
-      serviceAccountsEnabled: true
       publicClient: true
       frontchannelLogout: true
-      protocol: openid-connect
       attributes:
         oidc.ciba.grant.enabled: 'false'
         backchannel.logout.session.required: 'true'

@@ -1,40 +1,38 @@
 keycloak:
+  fullnameOverride: keycloak
+  
+  clientSecretAuthTypeEnabled: true  # Allows using 'client-seret' auth flow (default is authorization-code flow when set to 'false')
+
   global:
     compatibility:
       openshift:
         adaptSecurityContext: force
   
   auth:
-    adminUser: &keycloak_user admin
-    # FIXME: Change secret name & values
+    adminUser: admin
     existingSecret: demo-keycloak-auth-secret
     passwordSecretKey: KEYCLOAK_PASSWORD
-  
-  # extraEnvVars:
-  #   - name: KEYCLOAK_CLIENTID
-  #     value: master
-  #   - name: KEYCLOAK_USER
-  #     value: *keycloak_user
+
+  # extraEnvVars: ""
   extraEnvVarsCM: ""
   extraEnvVarsSecret: ""
-  # extraEnvVarsSecret: demo-keycloak-auth-secret
   
   keycloakConfigCli:
     enabled: true
-    # FIXME: Change CM name & values
     existingConfigmap: demo-keycloak-realm-cm
     extraEnvVars:
       - name: IMPORT_VARSUBSTITUTION_ENABLED
         value: "true"
-    # FIXME: Change secret & CM name & values
+      - name: KEYCLOAK_URL
+        value: "$(KEYCLOAK_URL_OVERRIDE)"
     extraEnvVarsCM: demo-keycloak-env-cm
-    extraEnvVarsSecret: demo-keycloak-env-secret
+    extraEnvVarsSecret: demo-keycloak-auth-secret
     resources:
       requests:
         cpu: 250m
         memory: 256Mi
       limits:
-        cpu: 1000m
+        cpu: 500m
         memory: 512Mi
     containerSecurityContext:
       enabled: false
@@ -48,11 +46,11 @@ keycloak:
   
   resources:
     requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
       cpu: 500m
       memory: 512Mi
-    limits:
-      cpu: 1000m
-      memory: 1024Mi
   
   externalDatabase:
     existingSecretHostKey: "host"
@@ -63,12 +61,12 @@ keycloak:
   postgresql:
     enabled: false
   
-  production: false  # FIXME: true
-  proxy: edge  # FIXME: deprecated
-  # proxyHeaders: forwarded
+  # production: false
+  # proxy: edge  # deprecated
+  # proxyHeaders: xforwarded  # default when 'proxy: edge'
   
   cache:
-      enabled: false
+    enabled: true
 
   podSecurityContext:
     enabled: false
@@ -90,15 +88,20 @@ keycloak:
   
   networkPolicy:
     enabled: false
+  
+  # adminIngress:
+  #   enabled: true
+  #   hostname: ""
 
   ingress:
       # enabled: true
       # hostname: ""
       # path: /
       # pathType: Prefix
-      apiVersion: ''
-      ingressClassName: ''
+      apiVersion: ""
+      ingressClassName: ""
       annotations: {}
+        # haproxy.org/cors-allow-headers: "X-Forwarded-For, Forwarded"
       selfSigned: false
       servicePort: http
       # tls: false
