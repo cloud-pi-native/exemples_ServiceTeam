@@ -1,5 +1,7 @@
 cluster:
   enabled: true
+
+  fullnameOverride: cnpg
   
   type: postgresql
   mode: standalone

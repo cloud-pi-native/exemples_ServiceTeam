@@ -1,6 +1,6 @@
 env: &environment demo
 
-keycloak_realm: &realm demo-realm
+keycloak_realm: &realm demo
 
 # Krakend (APIM)
 krakend:
@@ -13,18 +13,23 @@ krakend:
     env:
       - name: KC_REALM
         value: *realm
-        # FIXME: Name of the backend API kube svc
-      - name: BACKEND_SVC_NAME
-        value: "<release-name>"
-        # FIXME: Name of the Keycloak kube svc
-      - name: KEYCLOAK_SVC_NAME
-        value: "<release-name>-keycloak"
+    
+    # -- The default configuration has a settings files that
+    # will be used to load several aspects of the configuration.
+    settings:
+      # FIXME: APIHost & CORSUrl replace placeholders
+      urls.json: |-
+        {
+          "APIHost": "http://<BACKEND_SVC_NAME>:<BACKEND_SVC_PORT>",
+          "JWKUrl": "http://keycloak:80/realms/referentiel-applications/protocol/openid-connect/certs",
+          "CORSUrl": "https://<FRONTEND_DOMAIN_NAME>.apps.app1.numerique-interieur.com"
+        }
 
   ingress:
     enabled: true
     hosts:
-      # FIXME: Krakend URL
-      - host: "<apim-domain-name>.apps.app1.numerique-interieur.com"
+      # FIXME: Krakend host replace placeholder
+      - host: "<APIM_DOMAIN_NAME>.apps.app1.numerique-interieur.com"
         paths:
           - path: /
             pathType: Prefix
@@ -34,21 +39,30 @@ krakend:
 keycloak:
   enabled: true
 
-  extraEnvVars:
-    # FIXME: Keycloak URL
-    - name: KEYCLOAK_URL
-      value: https://<sso-domain-name>.apps.app1.numerique-interieur.com
-  externalDatabase:
-    # FIXME: Name of the CNPG generated secret
-    existingSecret: "<release-name>-cluster-app"
-
   ingress:
       enabled: true
-    # FIXME: Keycloak URL
-      hostname: "<sso-domain-name>.apps.app1.numerique-interieur.com"
+      scheme: https  # Set to 'http' if TLS is not enabled
+      # FIXME: Keycloak URL replace placeholder
+      hostname: "<SSO_DOMAIN_NAME>.apps.app1.numerique-interieur.com"
       path: /
       pathType: Prefix
-      tls: false
+      tls: true  # Set to 'false' to disable TLS
+  
+  production: false  # Set to 'true' for prod with TLS enabled
+  proxy: edge  # Set to 'passthrough' if TLS is not enabled (deprecated)
+  # proxyHeaders: xforwarded  # default when 'proxy: edge'
+
+  externalDatabase:
+    # FIXME: Name of the CNPG generated cluster-app secret
+    existingSecret: "cnpg-cluster-app"
+
+  extraEnvVars:
+    # Allows using Keycloak without TLS cert configured
+    - name: KEYCLOAK_SSLVERIFY
+      value: "false"
+    # Allows using Keycloak without TLS enabled
+    # - name: KC_HTTP_ENABLED
+    #   value: "true"
 
 # CNPG (DB)
 cluster:
