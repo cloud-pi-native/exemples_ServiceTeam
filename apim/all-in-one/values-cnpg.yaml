@@ -1,6 +1,4 @@
 cluster:
-  enabled: true
-
   fullnameOverride: cnpg
   
   type: postgresql

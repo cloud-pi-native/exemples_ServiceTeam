@@ -66,6 +66,8 @@ keycloak:
 
 # CNPG (DB)
 cluster:
+  enabled: true
+
   backups:
     enabled: false
     # destinationPath: "s3://<bucket><path>"
