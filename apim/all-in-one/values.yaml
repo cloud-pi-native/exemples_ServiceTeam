@@ -20,8 +20,8 @@ krakend:
       # FIXME: APIHost & CORSUrl replace placeholders
       urls.json: |-
         {
-          "APIHost": "http://<BACKEND_SVC_NAME>:<BACKEND_SVC_PORT>",
           "JWKUrl": "http://keycloak:80/realms/referentiel-applications/protocol/openid-connect/certs",
+          "APIHost": "http://<BACKEND_SVC_NAME>:<BACKEND_SVC_PORT>",
           "CORSUrl": "https://<FRONTEND_DOMAIN_NAME>.apps.app1.numerique-interieur.com"
         }
 
@@ -61,8 +61,8 @@ keycloak:
     - name: KEYCLOAK_SSLVERIFY
       value: "false"
     # Allows using Keycloak without TLS enabled
-    # - name: KC_HTTP_ENABLED
-    #   value: "true"
+    - name: KC_HTTP_ENABLED
+      value: "true"
 
 # CNPG (DB)
 cluster:

@@ -8,6 +8,8 @@
 
 # Build dir
 *dist/
+*tmp/
+*temp/
 
 # OS
 .DS_Store

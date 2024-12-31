@@ -90,13 +90,14 @@ Le chart Helm de CloudNativePG est une dépendance, et il est utilisé par Keycl
 
 ## Exemple de configuration
 
-Les valeurs suivantes sont fournies à titre d'exemple ou sont des placeholders à modifier par le projet avant de déployer la solution (fichier `values.yaml`). Il s'agit de paramètres Krakend sous forme de templates json ou de variables d'environnement. En particulier, les routes à exposer sont à définir :
+Les valeurs suivantes sont fournies à titre d'exemple ou sont des placeholders à modifier par le projet avant de déployer la solution (fichier `values.yaml`). En particulier, les routes à exposer sont à définir dans le fichier `values-krakend.yaml` en modifiant le contenu du template `endpoints.tmpl` (extrait à modifier plus loin) :
 
 | Key | Values |
 | --- | ------ |
-| `settings.urls.json` | `APIHost`: URL du service Kube vers le back-end avec le port </br> `JWKUrl`: URL du service Kube vers l'IDP (ex. Keycloak) avec le port et le path du protocole </br> `CORSUrl`: URL de l'Ingress d'un éventuel front-end accédant aux ressources exposées par l'API |
-| `templates.endpoints.tmpl` | `endpoint`: Path exposé par Krakend </br> `method`: Verbe concerné </br> `backend.url_pattern`: Path cible vers le back </br> `extra_config.auth/validator.Roles`: Liste des rôles de l'IdP autorisés pour l'endpoint |
-| `ingress.host` | URL externe pour exposer Krakend (et donc l'API Gateway) |
+| `krakend.templates.endpoints.tmpl` | `endpoint`: Path exposé par Krakend </br> `method`: Verbe concerné </br> `backend.url_pattern`: Path cible vers le back </br> `extra_config.auth/validator.Roles`: Liste des rôles de l'IdP autorisés pour l'endpoint </br> Liste complète des paramètres : [https://www.krakend.io/docs/endpoints/](https://www.krakend.io/docs/endpoints/) |
+| `krakend.settings.urls.json` | `APIHost`: URL du service Kube vers le back-end avec le port </br> `JWKUrl`: URL du service Kube vers l'IDP (ex. Keycloak) avec le port et le path du protocole </br> `CORSUrl`: URL de l'Ingress d'un éventuel front-end accédant aux ressources exposées par l'API |
+| `krakend.ingress.host` | URL externe pour exposer Krakend (et donc l'API Gateway) |
+| `keycloak.ingress.host` | URL externe pour exposer Keycloak (et donc le portail SSO) |
 
 L'exemple expose 3 endpoints, à savoir `/public` qui redirige vers une ressource `/swagger/json` du back-end sans authentification et `/private` qui redirige vers une ressource `/api/resource` du back-end avec validation d'autorisation (les rôles `admin`, `readwrite` & `readonly` peuvent effectuer un `GET` mais seuls les rôles `admin` & `readwrite` peuvent effectuer un `POST`), et enfin une ressource `/private/search` qui dispose de paramètres supplémentaires pour permettre la recherche et accepte la réponse sous forme de collection json (`backend.is_collection: true` et `input_query_strings: [*]`) :
 
@@ -178,7 +179,9 @@ L'exemple expose 3 endpoints, à savoir `/public` qui redirige vers une ressourc
 ]
 ```
 
-La définition des endpoint fait appel à des templates qui permettent de factoriser les configuration récurrentes telles que `auth/validator`, `modifier/lua-proxy`, `qos/ratelimit/router` & `qos/ratelimit/proxy`.
+La définition des endpoints fait appel à des templates qui permettent de factoriser les configuration récurrentes telles que `auth/validator`, `modifier/lua-proxy`, `qos/ratelimit/router` & `qos/ratelimit/proxy`. 
+
+Pour déployer cet exemple avec les configurations proposées pour Krakend, Keycloak & CNPG, copier le contenu de ce dossier (`apim/all-in-one`) ou fork ce dépôt et modifier dans les fichiers `values.yaml` les quelques valeurs placeholder référencées dans le tableau précédemment. Dans le cas d'un déploiement via la console Cloud Pi Native, une fois l'application ArgoCD créée (après avoir synchronisé le dépôt en sélectionnant le type 'infrastructure' puis créé un environnement) veiller à bien modifier les détails de l'app ArgoCD afin de pointer sur le bon 'path' où se trouve le fichier `Chart.yaml` et ajouter dans les paramètres tous les fichiers values nécessaires (`values-cnpg.yaml`, `values-keycloak.yaml`, `values-krakend.yaml` et `values.yaml` ou un éventuel fichier `values-env.yaml` dans le cas où plusieurs configurations existent pour différents environnements).
 
 ---
 
