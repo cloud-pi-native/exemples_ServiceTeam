@@ -1,0 +1,50 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: db
+spec:
+  startDelay: 300
+  instances: 1
+  superuserSecret:
+    name: db-super-user
+  storage:
+    size: 8Gi
+  walStorage:
+    size: 5Gi
+  postgres:
+    parameters:
+      max_slot_wal_keep_size: 5GB
+  {{- if .Values.db.resources }}
+  resources:
+    {{- .Values.db.resources | toYaml | nindent 4 }}
+  {{- end }}
+  bootstrap:
+    initdb:
+      database: app
+      owner: app
+      secret:
+        name: db-app-user
+      postInitApplicationSQLRefs:
+        configMapRefs:
+        - name: db-config-init
+          key: init.sql
+  {{- if .Values.db.backup.enabled }}
+  backup:
+    barmanObjectStore:
+      destinationPath: {{ .Values.db.backup.destinationPath | quote }}
+      endpointURL: {{ .Values.db.backup.endpointURL | quote }}
+      s3Credentials:
+        accessKeyId:
+          name: {{ .Values.db.backup.s3CredentialsSecret | quote }}
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: {{ .Values.db.backup.s3CredentialsSecret | quote }}
+          key: AWS_SECRET_ACCESS_KEY
+      wal:
+        compression: gzip
+        maxParallel: 8
+    retentionPolicy: {{ .Values.db.backup.retentionPolicy | quote }}
+  {{- end }}
+    
+  monitoring:
+    enablePodMonitor: true

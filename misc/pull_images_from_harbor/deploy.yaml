@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monimage-backend
+  labels:
+    app: monimage-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monimage-backend
+  template:
+    metadata:
+      labels:
+        app: monimage-backend
+        Tier: backend
+        Criticality: Low
+        Component: java
+    spec:
+      imagePullSecrets:
+        - name: registry-pull-secret
+      containers:
+        - name: monimage-backend
+          image: harbor.apps.c6.numerique-interieur.com/mi-monprojet/monimage-backend:v2
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "100m"
+          ports:
+            - containerPort: 8080

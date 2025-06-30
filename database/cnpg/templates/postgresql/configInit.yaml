@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config-init
+
+data:
+  init.sql: |-
+    DROP TABLE IF EXISTS public.EMPLOYEE cascade;
+      
+    -- create
+    CREATE TABLE EMPLOYEE (
+      empId INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      dept TEXT NOT NULL
+    );
+
+    -- insert
+    INSERT INTO EMPLOYEE VALUES (0001, 'Clark', 'Sales');
+    INSERT INTO EMPLOYEE VALUES (0002, 'Dave', 'Accounting');
+    INSERT INTO EMPLOYEE VALUES (0003, 'Ava', 'Sales');

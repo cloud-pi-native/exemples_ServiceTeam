@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-keycloak-env-cm
+data:
+  KC_REALM: {{ .Values.keycloak_realm }}
+  KC_REALM_CLIENTID: {{ .Values.keycloak_realm }}
+  KEYCLOAK_URL_OVERRIDE: "{{ .Values.keycloak.ingress.scheme }}://{{ .Values.keycloak.ingress.hostname }}"

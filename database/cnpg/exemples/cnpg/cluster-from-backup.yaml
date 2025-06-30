@@ -1,0 +1,27 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster-restore
+spec:
+
+  superuserSecret:
+    name: db-super-user
+
+  bootstrap:
+    recovery:
+      source: clusterBackup
+
+  externalClusters:
+    - name: clusterBackup
+      barmanObjectStore:
+        destinationPath: {{ .Values.db.backup.destinationPath | quote }}
+        endpointURL: {{ .Values.db.backup.endpointURL | quote }}
+        s3Credentials:
+          accessKeyId:
+            name: {{ .Values.db.backup.s3CredentialsSecret | quote }}
+            key: AWS_ACCESS_KEY_ID
+          secretAccessKey:
+            name: {{ .Values.db.backup.s3CredentialsSecret | quote }}
+            key: AWS_SECRET_ACCESS_KEY
+        wal:
+          maxParallel: 8
