@@ -8,7 +8,7 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: dso-nginx
+      app: nginx
   template:
     metadata:
       labels:

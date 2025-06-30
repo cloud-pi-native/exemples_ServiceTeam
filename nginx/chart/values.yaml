@@ -23,7 +23,7 @@ ingress:
   enabled: true
   secret:
     enabled: true
-  host: plec-demo-nginx.sdid-app-hp.numerique-interieur.com
+  host: plec-demo-nginx.sdid-app-hp.cpin.numerique-interieur.com
 
 resources: 
   limits:
