@@ -3,19 +3,16 @@ kind: Deployment
 metadata:
   name: {{ include "demo-nginx.fullname" . }}
   labels:
-    {{- include "demo-nginx.labels" . | nindent 4 }}
-    app: dso-nginx
+    app: nginx
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "demo-nginx.selectorLabels" . | nindent 6 }}
       app: dso-nginx
   template:
     metadata:
       labels:
-        {{- include "demo-nginx.selectorLabels" . | nindent 8 }}
-        app: dso-nginx
+        app: nginx
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:

@@ -6,11 +6,7 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "demo-java-helm.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    app: nginx
 spec:
   rules:
     - host: {{ .Values.ingress.host }}
