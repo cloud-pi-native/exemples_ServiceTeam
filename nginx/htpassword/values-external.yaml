@@ -1,0 +1,4 @@
+ingress:
+  host: plec-demo-nginx-auth.external-app.cpin.numerique-interieur.com
+
+
