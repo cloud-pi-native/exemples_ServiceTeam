@@ -23,7 +23,7 @@ cat auth | base64
 Zm9vOiRhcHIxJC5yVk5CN2txJGVJMVZlNFNobndpRERzN2JabzZPVy4K
 ```
 
-## Création du secret Kubernetes
+## Etape 2 : Création du secret Kubernetes
 
 Pour cela utilisez SOPS ou Vault. Pour l'exemple, le contenu est laissé en clair ce qui n'est pas une bonne pratique mais facilite la démonstration.
 
@@ -39,7 +39,7 @@ metadata:
 type: Opaque
 ```
 
-## Configuration de l'ingress
+## Etape 3 : Configuration de l'ingress
 
 Sur l'ingress ajouter les annotations suivantes :
 
@@ -53,4 +53,6 @@ Sur l'ingress ajouter les annotations suivantes :
     nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - foo'
 ```
 
-Accédez à l'url de l'ingress avec le mot de passe correspondant.
+Accédez à l'url de l'ingress et vous devriez arriver sur la mire d'authentification :à renseigner avec le login foo et le mot de passe saisie à l'étape 1
+
+![basic-auth](./img/basic-auth.png)
