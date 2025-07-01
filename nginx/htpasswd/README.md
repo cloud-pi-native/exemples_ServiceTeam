@@ -36,7 +36,6 @@ data:
 kind: Secret
 metadata:
   name: basic-auth
-  namespace: default
 type: Opaque
 ```
 
@@ -53,3 +52,5 @@ Sur l'ingress ajouter les annotations suivantes :
     # message to display with an appropriate context why the authentication is required
     nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - foo'
 ```
+
+Accédez à l'url de l'ingress avec le mot de passe correspondant.
